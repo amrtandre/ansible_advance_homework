@@ -1,0 +1,10 @@
+---
+# vars file for osp.servers - app1 instance
+name: app1
+state: present
+image: rhel-guest
+key_name: ansible_ssh
+flavor: m2.small
+security_group: apps
+group: apps
+deployment_name: QA
