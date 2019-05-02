@@ -1,2 +1,8 @@
 ---
 # vars file for app-tier
+
+httpd_pkg:
+ - httpd
+ - tomcat
+httpd_srv: httpd
+tomcat_srv: tomcat
