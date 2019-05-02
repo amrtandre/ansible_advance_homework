@@ -1,2 +1,14 @@
 ---
-# vars file for db-tier
+# vars file for db-tiera
+
+db_pkg:
+  - postgresql
+  - postgresql-server
+  - postgresql-contrib
+  - postgresql-libs
+
+db_srv: postgresql.service
+
+postgresql_user: postgres
+postgresql_group: postgres
+

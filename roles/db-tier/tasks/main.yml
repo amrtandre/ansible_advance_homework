@@ -1,2 +1,38 @@
 ---
 # tasks file for db-tier
+
+# Vars
+- include: variables.yml
+
+- name: Install postgres
+  yum:
+   name: "{{ item  }}"
+   state: latest
+  loop:
+   - "{{ db_pkg }}"
+
+- name: Ensure PostgreSQL data directory exists
+  file:
+    path: "{{ postgresql_data_dir }}"
+    owner: "{{ postgresql_user }}"
+    group: "{{ postgresql_group }}"
+    state: directory
+    mode: 0700
+
+- name: Check if PostgreSQL database is initialized
+  stat:
+    path: "{{ postgresql_data_dir }}/PG_VERSION"
+  register: pgdata_dir_version
+
+- name: Ensure PostgreSQL database is initialized.
+  command: "{{ postgresql_bin_path }}/initdb -D {{ postgresql_data_dir }}"
+  when: not pgdata_dir_version.stat.exists
+  become: yes
+  become_user: "{{ postgresql_user }}"
+
+- name: Start postgres
+  service:
+   name: "{{ db_srv }}"
+   enabled: true
+   state: started
+
