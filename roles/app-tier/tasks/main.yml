@@ -10,7 +10,7 @@
 
 - name: Enable tomcat at boot
   service:
-    name: "{{ tomact_srv }}"
+    name: "{{ tomcat_srv }}"
     enabled: true
 
 - name: create tomcat directory
