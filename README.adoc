@@ -1,0 +1,119 @@
+[Enviroment]
+
+#GitHub URL for Grading
+https://github.com/amrtandre/ansible_advance_homework
+
+#Ansible Advanced - OpenStack - OSP_GUID=0a30
+ssh -i ~/.ssh/id_rsa andre.trindade-mycom-osi.com@workstation-0a30.rhpds.opentlc.com
+
+#Ansible Advanced - Homework - TOWER_GUID=0e78
+ssh -i ~/.ssh/id_rsa andre.trindade-mycom-osi.com@bastion.0e78.example.opentlc.com
+
+#Ansible Advanced - Homework - ANSIBLE_ADVANCE_GUID=f73f
+ssh -i ~/.ssh/id_rsa andre.trindade-mycom-osi.com@bastion.f73f.example.opentlc.com
+
+
+
+[Instrcutions]
+
+. Connect to Ansible Tower Homework lab
+
+[atrindade.ATrinidade] ➤ ssh -i ~/.ssh/id_rsa andre.trindade-mycom-osi.com@bastion.0e78.example.opentlc.com
+
+. Copy OpenTLC private key to /root/.ssh/ and set permissions 
+
+[andre.trindade-mycom-osi.com@bastion ~]$ sudo -i
+[andre.trindade-mycom-osi.com@bastion ~]$ vi /root/.ssh/id_rsa
+[andre.trindade-mycom-osi.com@bastion ~]$ chmod 400 /root/.ssh/id_rsa
+
+. Clone Git repository
+
+[root@bastion ~]# git clone https://github.com/amrtandre/ansible_advance_homework
+
+. Run site-setup-workstation.yml playbook to provision the network, flavor, security groups and SSH keys
+
+[root@bastion ~]# cd ansible_advance_homework
+[root@bastion ansible_advance_homework]# OSP_GUID=0a30
+[root@bastion ansible_advance_homework]# ansible-playbook site-setup-workstation.yml -e OSP_GUID=${OSP_GUID} --private-key=/root/.ssh/id_rsa -u andre.trindade-mycom-osi.com
+
+. Run site-config-tower.yml playbook to create the job templates and workflow template
+
+[root@bastion ansible_advance_homework]# TOWER_GUID=0e78
+[root@bastion ansible_advance_homework]# OSP_GUID=0a30
+[root@bastion ansible_advance_homework]# OPENTLC_LOGIN=andre.trindade-mycom-osi.com
+[root@bastion ansible_advance_homework]# OPENTLC_PASSWORD=Mycom123!
+[root@bastion ansible_advance_homework]# GITHUB_REPO=https://github.com/amrtandre/ansible_advance_homework
+[root@bastion ansible_advance_homework]# JQ_REPO_BASE=http://www.opentlc.com/download/ansible_bootcamp
+[root@bastion ansible_advance_homework]# REGION=us-east-1
+[root@bastion ansible_advance_homework]# RH_MAIL_ID=andre.trindade@mycom-osi.com
+[root@bastion ansible_advance_homework]# ansible-playbook site-config-tower.yml -e tower_GUID=${TOWER_GUID} -e osp_GUID=${OSP_GUID} -e opentlc_login=${OPENTLC_LOGIN} -e path_to_opentlc_key=/root/.ssh/id_rsa -e param_repo_base=${JQ_REPO_BASE} -e opentlc_password=${OPENTLC_PASSWORD} -e REGION_NAME=${REGION} -e EMAIL=${RH_MAIL_ID} -e github_repo=${GITHUB_REPO}
+
+
+. Go to Tower using the bellow url/credentials and execute "cicd_workflow" workflow template
+
+URL: https://tower1.0e78.example.opentlc.com
+User: admin
+Pass: r3dh4t1!
+
+
+. Grading
+
+[root@bastion ansible_advance_homework]# ansible-playbook grading-script.yml -e OSP_GUID=0a30 -e ANSIBLE_ADVANCE_GUID=f73f
+
+
+
+[List of Playbooks]
+
+site-setup-workstation.yml 		| Playbook to call role `setup-workstation`
+	roles/setup-workstation		| Setup workstation, create network, ssh keypair, security group etc. role
+site-install-isolated-node.yml	| Playbook to install isolated node
+
+site-config-tower.yml 			| Playbook to call role `config-tower`
+	roles/config-tower 			| Role to configure ansible tower job templates and workflow
+	roles/config-tower/vars		| All the variable values are set there
+	roles/config-tower/tasks/ec2_dynamic.yml 		| For creating Dynamic inventory in Ansible tower. Use `AWS Access Key` for credential
+	roles/config-tower/tasks/job_template.yml 		| For creating job templates
+	roles/config-tower/tasks/pre-config-tower.yml 	| Any pre config tasks needed
+	roles/config-tower/tasks/workflow_template.yml 	| genrate workflow from `workflow.yml` file
+	roles/config-tower/tasks/post-config-tower.yml 	| any post config jobs
+	
+site-osp-instances.yml			| Playbook to call role `osp-servers`
+	roles/osp-servers			| Provision OSP Instances role 
+
+site-3tier-app.yml				| Playbook to deploy three tier app
+	roles/lb-tier				| Install HA proxy role
+	roles/app-tier				| Install application server role
+	roles/db-tier				| Install postgressql server for database role
+	roles/base-config 			| Setup yum repo and base packages role
+	roles/osp-facts 			| Genrate in-memory inventory for OSP instances role
+	
+site-smoke-osp.yml				| Playbook to test three tier app on OSP
+	
+site-osp-delete.yml				| Playbook to call role `osp-instance-delete`
+	roles/osp-instance-delete	| Delete OSP Instances role
+
+aws_creds.yml					| Fetch GUIDkey.pem from bastion of Three tier application env and create machine credential to connect to AWS instances
+	
+site-smoketest-aws.yml			| Playbook to test three tier app on AWS
+
+aws_provision.yml 				| Use `order_svc.sh` script to provision env
+
+aws_status_check.yml 			| Check aws instances are up or not
+
+grading-script.yml 				| Self grading script
+
+ssh.cfg							| SSH proxy configuration
+
+
+
+
+
+
+
+
+
+
+
+
+
+
